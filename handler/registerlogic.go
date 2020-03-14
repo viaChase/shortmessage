@@ -4,6 +4,6 @@ import "shortmessage/logic"
 
 var shortMessageLogic *logic.ShortMessageLogic
 
-func RegLogic(l *logic.ShortMessageLogic) {
-	shortMessageLogic = l
+func RegLogic(logic *logic.ShortMessageLogic) {
+	shortMessageLogic = logic
 }

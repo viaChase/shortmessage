@@ -21,7 +21,6 @@ func (sml *ShortMessageLogic) Test(req *TestRequest) (*TestResponse, error) {
 	_, err := sml.userModel.Insert(&model.User{
 		UserName:   req.Name,
 		PassWord:   req.PassWord,
-		Token:      "112",
 		CreateTime: time.Time{},
 		UpdateTime: time.Time{},
 	})

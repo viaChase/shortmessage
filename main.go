@@ -4,6 +4,7 @@ import (
 	"github.com/go-xorm/xorm"
 	"shortmessage/handler"
 	"shortmessage/logic"
+	"shortmessage/midwear"
 	"shortmessage/model"
 
 	"github.com/gin-gonic/gin"
@@ -11,8 +12,16 @@ import (
 )
 
 func Route(r *gin.Engine) {
-	r.GET("/ping", handler.TestHandler)
+
+	home := r.Group("/home")
+	home.Use(midwear.LoginCheck())
+	{
+		home.GET("/ping", handler.TestHandler)
+		home.GET("/ping", handler.TestHandler)
+	}
+
 	r.POST("/login", handler.LoginHandler)
+	r.POST("/register", handler.RegisterHandler)
 }
 
 func main() {
@@ -28,10 +37,12 @@ func main() {
 
 	var (
 		r = gin.New()
-		l = logic.NewShortMessageLogic(userModel)
+		l = logic.NewShortMessageLogic(userModel, "123456")
 	)
 
 	handler.RegLogic(l)
+	midwear.SetSalt("123456")
+
 	Route(r)
 	_ = r.Run(":8081")
 }
