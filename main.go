@@ -16,8 +16,7 @@ func Route(r *gin.Engine) {
 	home := r.Group("/home")
 	home.Use(midwear.LoginCheck())
 	{
-		home.GET("/ping", handler.TestHandler)
-		home.GET("/ping", handler.TestHandler)
+		home.GET("/ping", handler.LoginHandler)
 	}
 
 	r.POST("/login", handler.LoginHandler)
