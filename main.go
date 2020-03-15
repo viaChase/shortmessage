@@ -16,7 +16,10 @@ func Route(r *gin.Engine) {
 	home := r.Group("/home")
 	home.Use(midwear.LoginCheck())
 	{
-		home.GET("/ping", handler.LoginHandler)
+		home.POST("/add_contacts", handler.LoginHandler)
+		home.POST("/contacts_list", handler.LoginHandler)
+		home.POST("/del_contact", handler.LoginHandler)
+		home.POST("/update_contact", handler.LoginHandler)
 	}
 
 	r.POST("/login", handler.LoginHandler)
