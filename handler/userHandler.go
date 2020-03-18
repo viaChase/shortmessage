@@ -15,13 +15,14 @@ func LoginHandler(context *gin.Context) {
 	}
 
 	//业务逻辑
-	userId, jwt, err := shortMessageLogic.Login(&req)
+	userId, jwt, resp, err := shortMessageLogic.Login(&req)
 	if err != nil {
 		return
 	}
 
 	context.Header("userId", fmt.Sprintf("%v", userId))
 	context.Header("jwt", jwt)
+	context.JSON(http.StatusOK, resp)
 }
 
 func RegisterHandler(context *gin.Context) {

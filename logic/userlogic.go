@@ -20,6 +20,10 @@ type (
 		UserName string `json:"user_name"`
 		PassWard string `json:"pass_ward"`
 	}
+
+	LoginResponse struct {
+		LastReadMessageTime int64 `json:"lastReadMessageTime"`
+	}
 )
 
 func (sml *ShortMessageLogic) Register(req *RegisterRequest) (*RegisterResponse, error) {
@@ -42,16 +46,16 @@ func (sml *ShortMessageLogic) Register(req *RegisterRequest) (*RegisterResponse,
 	return &RegisterResponse{UserId: userId}, nil
 }
 
-func (sml *ShortMessageLogic) Login(req *LoginRequest) (int64, string, error) {
+func (sml *ShortMessageLogic) Login(req *LoginRequest) (int64, string, *LoginResponse, error) {
 
 	//通过用户名 查找
 	user, err := sml.userModel.FindByName(req.UserName)
 	if err != nil {
-		return 0, "", userLoginFailed
+		return 0, "", nil, userLoginFailed
 	}
 
 	if user.PassWord != req.PassWard {
-		return 0, "", userCreateFailed
+		return 0, "", nil, userCreateFailed
 	}
 
 	//header  userId = 112 ; jwt = "xxxxxx"
@@ -65,5 +69,5 @@ func (sml *ShortMessageLogic) Login(req *LoginRequest) (int64, string, error) {
 
 	jwt := common.Md5(fmt.Sprintf("%v-%v", user.ID, sml.salt))
 
-	return user.ID, jwt, nil
+	return user.ID, jwt, &LoginResponse{LastReadMessageTime: user.LastReadMessageTime}, nil
 }

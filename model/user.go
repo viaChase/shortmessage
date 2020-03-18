@@ -8,11 +8,12 @@ import (
 
 type (
 	User struct {
-		ID         int64
-		UserName   string    `xorm:"varchar(400)"`
-		PassWord   string    `xorm:"varchar(400)"`
-		CreateTime time.Time `xorm:"created"`
-		UpdateTime time.Time `xorm:"updated"`
+		ID                  int64
+		UserName            string    `xorm:"varchar(400)"`
+		PassWord            string    `xorm:"varchar(400)"`
+		LastReadMessageTime int64     `xorm:"INTEGER"` //上次读取消息的时间戳
+		CreateTime          time.Time `xorm:"created"`
+		UpdateTime          time.Time `xorm:"updated"`
 	}
 
 	UserModel struct {
@@ -90,4 +91,9 @@ func (um *UserModel) Update(data *User) error {
 	}
 
 	return nil
+}
+
+func (um *UserModel) UpdateLastReadTime(userId, lastReadTime int64) error {
+	_, err := um.x.Exec("update user set last_read_message_time = ? where i_d = ? ", lastReadTime, userId)
+	return err
 }

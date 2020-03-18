@@ -7,6 +7,7 @@ type (
 		salt          string
 		userModel     *model.UserModel
 		mailListModel *model.MailListModel
+		messageModel  *model.MessageModel
 	}
 )
 

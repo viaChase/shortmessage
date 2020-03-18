@@ -8,4 +8,5 @@ var (
 	userLoginFailed    = errors.New("用户登入失败")
 	friendAlreadyExit  = errors.New("该联系人已经存在")
 	friendAlNotExit    = errors.New("该联系人不存在")
+	sendMessageField   = errors.New("消息发送失败")
 )
