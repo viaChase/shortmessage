@@ -84,11 +84,11 @@ func (mlm *MailListModel) FindByUserId(nowPage, pageSize, userId int64, searchDa
 
 	// select * from table where userId = 111 limit 0, 10 反射
 	if searchData == "" {
-		if err := mlm.x.Limit(int(pageSize), int(pageSize)*int(nowPage-1)).Find(data, eq); err != nil {
+		if err := mlm.x.Limit(int(pageSize), int(pageSize)*int(nowPage-1)).Find(&data, eq); err != nil {
 			return nil, err
 		}
 	} else {
-		if err := mlm.x.Limit(int(pageSize), int(pageSize)*int(nowPage-1)).Find(data, eq, like); err != nil {
+		if err := mlm.x.Limit(int(pageSize), int(pageSize)*int(nowPage-1)).Find(&data, eq, like); err != nil {
 			return nil, err
 		}
 	}

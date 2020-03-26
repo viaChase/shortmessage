@@ -20,6 +20,8 @@ func Route(r *gin.Engine) {
 		home.POST("/contacts_list", handler.LoginHandler)
 		home.POST("/del_contact", handler.LoginHandler)
 		home.POST("/update_contact", handler.LoginHandler)
+		home.POST("/send_message", handler.SendMessageHandler)
+		home.POST("/message_view", handler.MessagePeopleViewHandler)
 	}
 
 	r.POST("/login", handler.LoginHandler)

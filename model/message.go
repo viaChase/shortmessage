@@ -61,8 +61,27 @@ func (mm *MessageModel) FindNewMessage(userId, lastTime int64) ([]*Message, erro
 	)
 
 	if err := mm.x.Where("CreateTime > ? and UserId = ? ", time.Unix(lastTime, 0), userId).
-		Find(messages); err != nil {
+		Find(&messages); err != nil {
 		return nil, err
+	}
+
+	return messages, nil
+}
+
+func (mm *MessageModel) FindAllMessage(userId, lastTime int64, searchData string) ([]*Message, error) {
+	var (
+		messages []*Message
+	)
+
+	//select xxx from xxx where userid = ? and searchData like %?%
+	if searchData == "" {
+		if err := mm.x.Where(" UserId = ? and CreateTime > ? ", userId, time.Unix(lastTime, 0)).Find(&messages); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := mm.x.Where(" UserId = ? and CreateTime > ? and content like ? ", userId, time.Unix(lastTime, 0), "%"+searchData+"%").Find(&messages); err != nil {
+			return nil, err
+		}
 	}
 
 	return messages, nil

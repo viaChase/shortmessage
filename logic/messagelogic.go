@@ -12,32 +12,34 @@ type (
 		Content      string `json:"content"`
 	}
 
-	NewMessageRequest struct {
-		LastTimeSnap int64 `json:"lastTimeSnap"`
-	}
-
-	NewMessageResponse struct {
-		LastTimeSnap int64              `json:"lastTimeSnap"`
-		MessageList  []*MessageListItem `json:"messageList"`
-	}
-
-	MessageListHistoryRequest struct {
-		SearchData string `json:"searchData"` //短信内容关键词 如果为"" 就是不过滤
-		SendId     int64  `json:"sendId"`     //谁发送的 如果未0就是所有人
-		PageSize   int64  `json:"pageSize"`
-		PageNum    int64  `json:"pageNum"`
-	}
-
-	MessageListHistoryResponse struct {
-		Count       int64              `json:"count"` //一共多少条数据
-		MessageList []*MessageListItem `json:"messageList"`
-	}
-
 	MessageListItem struct {
 		SendId         int64  `json:"sendId"`
 		SendFriendName string `json:"sendFriendName"`
 		Content        string `json:"content"`
 		SendTime       int64  `json:"sendTime"`
+	}
+
+	MessagePeopleViewRequest struct {
+		LastTime   int64  `json:"lastTime"`
+		SearchData string `json:"searchData"`
+	}
+
+	MessagePeopleViewResponse struct {
+		LastTime        int64                  `json:"lastTime"`
+		UserMessageList []*UserMessageListItem `json:"userMessageList"`
+	}
+
+	UserMessageListItem struct {
+		UserId      int64          `json:"userId"`
+		UserName    string         `json:"userName"`
+		MessageList []*MessageItem `json:"messageList"`
+	}
+
+	MessageItem struct {
+		MessageId  int64  `json:"messageId"`
+		Content    string `json:"content"`
+		CreateTime int64  `json:"createTime"`
+		IsNew      bool   `json:"isNew"`
 	}
 )
 
@@ -63,57 +65,71 @@ func (sml *ShortMessageLogic) SendMessage(req *SendMessageRequest, userId int64)
 	return nil
 }
 
-func (sml *ShortMessageLogic) NewMessage(req *NewMessageRequest, userId int64) (*NewMessageResponse, error) {
+// 获得消息
+func (sml *ShortMessageLogic) MessagePeopleView(req *MessagePeopleViewRequest, userId int64) (*MessagePeopleViewResponse, error) {
 
-	messagesList, err := sml.messageModel.FindNewMessage(userId, req.LastTimeSnap)
+	var (
+		lastTime = req.LastTime
+		hasNew   = false
+	)
+
+	if req.LastTime == 0 {
+		user, err := sml.userModel.FindById(userId)
+		if err != nil {
+			return nil, err
+		}
+		lastTime = user.LastReadMessageTime
+	}
+
+	messageList, err := sml.messageModel.FindAllMessage(userId, req.LastTime, req.SearchData)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(messagesList) == 0 {
-		return &NewMessageResponse{
-			LastTimeSnap: req.LastTimeSnap,
-			MessageList:  nil,
+	if len(messageList) == 0 {
+		return &MessagePeopleViewResponse{
+			LastTime:        lastTime,
+			UserMessageList: nil,
 		}, nil
 	}
 
 	var (
-		messageDatas  []*MessageListItem
-		lastTimeStnp  int64
-		friendNameMap = make(map[int64]string)
+		friendMessageMap = make(map[int64][]*MessageItem)
+		resp             = &MessagePeopleViewResponse{}
 	)
 
-	for i := 0; i < len(messagesList); i++ {
-		var sendFriendName = ""
+	for _, message := range messageList {
 
-		sendFriendName, exit := friendNameMap[messagesList[i].SendId]
-		if exit == false {
-			if mailList, err := sml.mailListModel.FindByUserIdAndFriendId(messagesList[i].SendId, userId); err == nil {
-				sendFriendName = mailList.FriendName
-			} else {
-				sendFriendName = fmt.Sprintf("%v", messagesList[i].SendId)
-			}
-			friendNameMap[messagesList[i].SendId] = sendFriendName
+		if message.CreateTime.Unix() > lastTime {
+			lastTime = message.CreateTime.Unix()
+			hasNew = true
 		}
 
-		if lastTimeStnp < messagesList[i].CreateTime.Unix() {
-			lastTimeStnp = messagesList[i].CreateTime.Unix()
-		}
-
-		messageDatas = append(messageDatas, &MessageListItem{
-			SendId:         messagesList[i].SendId,
-			SendFriendName: sendFriendName,
-			Content:        messagesList[i].Content,
-			SendTime:       messagesList[i].CreateTime.Unix(),
+		friendMessageMap[message.SendId] = append(friendMessageMap[message.SendId], &MessageItem{
+			MessageId:  message.ID,
+			Content:    message.Content,
+			CreateTime: message.CreateTime.Unix(),
+			IsNew:      message.CreateTime.Unix() > req.LastTime,
 		})
 	}
 
-	if len(messageDatas) != 0 {
-		_ = sml.userModel.UpdateLastReadTime(userId, lastTimeStnp)
+	for friendId, messages := range friendMessageMap {
+		friendName := fmt.Sprintf("%v", friendId)
+		if mailList, err := sml.mailListModel.FindByUserIdAndFriendId(friendId, userId); err == nil {
+			friendName = mailList.FriendName
+		}
+
+		resp.UserMessageList = append(resp.UserMessageList, &UserMessageListItem{
+			UserId:      friendId,
+			UserName:    friendName,
+			MessageList: messages,
+		})
 	}
 
-	return &NewMessageResponse{
-		LastTimeSnap: lastTimeStnp,
-		MessageList:  messageDatas,
-	}, nil
+	resp.LastTime = lastTime
+	if hasNew {
+		_ = sml.userModel.UpdateLastReadTime(userId, lastTime)
+	}
+
+	return resp, nil
 }
