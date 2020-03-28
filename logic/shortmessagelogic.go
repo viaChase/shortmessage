@@ -4,10 +4,11 @@ import "shortmessage/model"
 
 type (
 	ShortMessageLogic struct {
-		salt          string
-		userModel     *model.UserModel
-		mailListModel *model.MailListModel
-		messageModel  *model.MessageModel
+		salt            string
+		userModel       *model.UserModel
+		mailListModel   *model.MailListModel
+		messageModel    *model.MessageModel
+		memorandumModel *model.MemorandumModel
 	}
 )
 

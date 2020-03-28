@@ -9,7 +9,8 @@ type (
 	Memorandum struct {
 		ID         int64     //自增id
 		UserId     int64     `xorm:"INTEGER"`      //用户id
-		Content    string    `xorm:"varchar(400)"` //备忘录内容
+		Title      string    `xorm:"varchar(100)"` //备忘录标题
+		Content    string    `xorm:"varchar(800)"` //备忘录内容
 		CreateTime time.Time `xorm:"created"`      //创建时间
 	}
 
@@ -56,6 +57,9 @@ func (mdm *MemorandumModel) Find(userId int64, pageNum, pageSize int, searchData
 	}
 
 	return data, nil
+}
+
+func (mdm *MemorandumModel) FindOne(memory int64) (*Memorandum, error) {
 }
 
 func (mdm *MemorandumModel) Count(userId int64, searchData string) (int64, error) {

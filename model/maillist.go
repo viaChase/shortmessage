@@ -30,6 +30,7 @@ func NewMailListModel(x *xorm.Engine) (*MailListModel, error) {
 	return &MailListModel{x: x}, nil
 }
 
+//  select * from mailList where FriendId = xxx and userId = xxx
 func (mlm *MailListModel) FindByUserIdAndFriendId(friendId, userId int64) (*MailList, error) {
 
 	/*
