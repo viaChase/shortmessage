@@ -17,7 +17,7 @@ func Route(r *gin.Engine) {
 	home.Use(midwear.LoginCheck())
 	{
 		home.POST("/add_contacts", handler.LoginHandler)
-		home.POST("/contacts_list", handler.LoginHandler)
+		home.POST("/contacts_list", handler.go)
 		home.POST("/del_contact", handler.LoginHandler)
 		home.POST("/update_contact", handler.LoginHandler)
 		home.POST("/send_message", handler.SendMessageHandler)
