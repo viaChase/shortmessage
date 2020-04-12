@@ -12,9 +12,17 @@ type (
 	}
 )
 
-func NewShortMessageLogic(userModel *model.UserModel, salt string) *ShortMessageLogic {
+func NewShortMessageLogic(
+	userModel *model.UserModel,
+	mailListModel *model.MailListModel,
+	messageModel *model.MessageModel,
+	memorandumModel *model.MemorandumModel,
+	salt string) *ShortMessageLogic {
 	return &ShortMessageLogic{
-		salt:      salt,
-		userModel: userModel,
+		salt:            salt,
+		userModel:       userModel,
+		mailListModel:   mailListModel,
+		messageModel:    messageModel,
+		memorandumModel: memorandumModel,
 	}
 }

@@ -10,13 +10,14 @@ import (
 func LoginHandler(context *gin.Context) {
 	var req logic.LoginRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.BindJSON(&req); err != nil {
 		return
 	}
 
 	//业务逻辑
 	userId, jwt, resp, err := shortMessageLogic.Login(&req)
 	if err != nil {
+		context.String(http.StatusUnauthorized, err.Error())
 		return
 	}
 
@@ -28,13 +29,13 @@ func LoginHandler(context *gin.Context) {
 func RegisterHandler(context *gin.Context) {
 	var req logic.RegisterRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.BindJSON(&req); err != nil {
 		return
 	}
 
 	resp, err := shortMessageLogic.Register(&req)
 	if err != nil {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusUnauthorized, err.Error())
 		return
 	}
 

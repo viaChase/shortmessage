@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	er "shortmessage/error"
 	"shortmessage/logic"
 	"strconv"
 )
@@ -10,40 +11,40 @@ import (
 func AddContactsHandler(context *gin.Context) {
 	var req logic.AddContactsRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.ShouldBindJSON(&req); err != nil {
 		return
 	}
 
 	userId, err := strconv.ParseInt(context.Request.Header.Get("userId"), 10, 64)
 	if err != nil || userId == 0 {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusUnauthorized, er.UserNotLogin.Error())
 		return
 	}
 
 	if err := shortMessageLogic.AddContacts(&req, userId); err != nil {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusBadGateway, err.Error())
 		return
 	}
 
 	context.Status(http.StatusOK)
 }
 
-func ContactsListHanlder(context *gin.Context) {
+func ContactsListHandler(context *gin.Context) {
 	var req logic.ContactsListRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.ShouldBindJSON(&req); err != nil {
 		return
 	}
 
 	userId, err := strconv.ParseInt(context.Request.Header.Get("userId"), 10, 64)
 	if err != nil || userId == 0 {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusUnauthorized, er.UserNotLogin.Error())
 		return
 	}
 
 	resp, err := shortMessageLogic.ContactsList(&req, userId)
 	if err != nil {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusBadGateway, err.Error())
 		return
 	}
 
@@ -53,18 +54,18 @@ func ContactsListHanlder(context *gin.Context) {
 func DelContactHandler(context *gin.Context) {
 	var req logic.DeleteContactRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.ShouldBindJSON(&req); err != nil {
 		return
 	}
 
 	userId, err := strconv.ParseInt(context.Request.Header.Get("userId"), 10, 64)
 	if err != nil || userId == 0 {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusUnauthorized, er.UserNotLogin.Error())
 		return
 	}
 
 	if err := shortMessageLogic.DelContact(&req, userId); err != nil {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusBadGateway, err.Error())
 		return
 	}
 
@@ -74,18 +75,18 @@ func DelContactHandler(context *gin.Context) {
 func UpdateContactHandler(context *gin.Context) {
 	var req logic.UpdateContactsRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.ShouldBindJSON(&req); err != nil {
 		return
 	}
 
 	userId, err := strconv.ParseInt(context.Request.Header.Get("userId"), 10, 64)
 	if err != nil || userId == 0 {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusUnauthorized, er.UserNotLogin.Error())
 		return
 	}
 
 	if err := shortMessageLogic.UpdateContact(&req, userId); err != nil {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusBadGateway, err.Error())
 		return
 	}
 

@@ -3,6 +3,7 @@ package logic
 import (
 	"fmt"
 	"shortmessage/common"
+	er "shortmessage/error"
 	"shortmessage/model"
 )
 
@@ -34,13 +35,13 @@ func (sml *ShortMessageLogic) Register(req *RegisterRequest) (*RegisterResponse,
 	}
 
 	if userNameCount >= 1 {
-		return nil, userNamAlreadyExit
+		return nil, er.UserNamAlreadyExit
 	}
 
 	//返回用户id
 	userId, err := sml.userModel.Insert(&model.User{UserName: req.UserName, PassWord: req.PassWard})
 	if err != nil {
-		return nil, userCreateFailed
+		return nil, er.UserCreateFailed
 	}
 
 	return &RegisterResponse{UserId: userId}, nil
@@ -51,11 +52,12 @@ func (sml *ShortMessageLogic) Login(req *LoginRequest) (int64, string, *LoginRes
 	//通过用户名 查找
 	user, err := sml.userModel.FindByName(req.UserName)
 	if err != nil {
-		return 0, "", nil, userLoginFailed
+		fmt.Println(err)
+		return 0, "", nil, er.UserLoginFailed
 	}
 
 	if user.PassWord != req.PassWard {
-		return 0, "", nil, userCreateFailed
+		return 0, "", nil, er.UserLoginFailed
 	}
 
 	//header  userId = 112 ; jwt = "xxxxxx"

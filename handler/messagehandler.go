@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	er "shortmessage/error"
 	"shortmessage/logic"
 	"strconv"
 )
@@ -16,13 +17,13 @@ func SendMessageHandler(context *gin.Context) {
 
 	userId, err := strconv.ParseInt(context.Request.Header.Get("userId"), 10, 64)
 	if err != nil || userId == 0 {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusUnauthorized, er.UserNotLogin.Error())
 		return
 	}
 
 	err = shortMessageLogic.SendMessage(&req, userId)
 	if err != nil {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusBadGateway, err.Error())
 		return
 	}
 
@@ -38,13 +39,13 @@ func MessagePeopleViewHandler(context *gin.Context) {
 
 	userId, err := strconv.ParseInt(context.Request.Header.Get("userId"), 10, 64)
 	if err != nil || userId == 0 {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusUnauthorized, er.UserNotLogin.Error())
 		return
 	}
 
 	resp, err := shortMessageLogic.MessagePeopleView(&req, userId)
 	if err != nil {
-		_ = context.AbortWithError(http.StatusForbidden, err)
+		context.String(http.StatusBadGateway, err.Error())
 		return
 	}
 

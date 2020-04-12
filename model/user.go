@@ -36,15 +36,11 @@ func (um *UserModel) Insert(data *User) (int64, error) {
 
 func (um *UserModel) FindById(userId int64) (*User, error) {
 	var (
-		eq = builder.Eq{
-			"i_d": userId,
-		}
-
 		data User
 	)
 
-	if err := um.x.Find(&data, eq); err != nil {
-		return nil, err
+	if find, err := um.x.Where("i_d = ?", userId).Get(&data); err != nil || find == false {
+		return nil, ErrNotFind
 	}
 
 	//um.x.Query("select * from user where username = ? and password = ? ", userName,password)
@@ -53,15 +49,11 @@ func (um *UserModel) FindById(userId int64) (*User, error) {
 
 func (um *UserModel) FindByName(userName string) (*User, error) {
 	var (
-		eq = builder.Eq{
-			"UserName": userName,
-		}
-
 		data User
 	)
 
-	if err := um.x.Find(&data, eq); err != nil {
-		return nil, err
+	if find, err := um.x.Where("user_name = ? ", userName).Get(&data); err != nil || find == false {
+		return nil, ErrNotFind
 	}
 
 	//um.x.Query("select * from user where username = ? and password = ? ", userName,password)
@@ -69,20 +61,15 @@ func (um *UserModel) FindByName(userName string) (*User, error) {
 }
 
 func (um *UserModel) CountByName(userName string) (int64, error) {
-	var (
-		eq = builder.Eq{
-			"UserName": userName,
-		}
-	)
 
 	//select count(1) from table where username = username
-	return um.x.Count(eq)
+	return um.x.Where(" user_name = ? ", userName).Count(&User{})
 }
 
 func (um *UserModel) Update(data *User) error {
 	var (
 		eq = builder.Eq{
-			"ID": data.ID,
+			"i_d": data.ID,
 		}
 	)
 

@@ -59,15 +59,18 @@ func (mdm *MemorandumModel) Find(userId int64, pageNum, pageSize int, searchData
 	return data, nil
 }
 
-func (mdm *MemorandumModel) FindOne(memory int64) (*Memorandum, error) {
+func (mdm *MemorandumModel) FindOne(title string, userid int64) (*Memorandum, error) {
+
+	return nil, nil
+
 }
 
 func (mdm *MemorandumModel) Count(userId int64, searchData string) (int64, error) {
 
 	if searchData == "" {
-		return mdm.x.Where("userId = ？ ", userId).Count()
+		return mdm.x.Where("userId = ？ ", userId).Count(&Memorandum{})
 
 	} else {
-		return mdm.x.Where("userId = ？ and content like ？ ", userId, "%"+searchData+"%").Count()
+		return mdm.x.Where("userId = ？ and content like ？ ", userId, "%"+searchData+"%").Count(&Memorandum{})
 	}
 }

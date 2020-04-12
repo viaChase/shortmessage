@@ -60,7 +60,7 @@ func (mm *MessageModel) FindNewMessage(userId, lastTime int64) ([]*Message, erro
 		messages []*Message
 	)
 
-	if err := mm.x.Where("CreateTime > ? and UserId = ? ", time.Unix(lastTime, 0), userId).
+	if err := mm.x.Where("create_time > ? and user_id = ? ", time.Unix(lastTime, 0), userId).
 		Find(&messages); err != nil {
 		return nil, err
 	}
@@ -75,11 +75,11 @@ func (mm *MessageModel) FindAllMessage(userId, lastTime int64, searchData string
 
 	//select xxx from xxx where userid = ? and searchData like %?%
 	if searchData == "" {
-		if err := mm.x.Where(" UserId = ? and CreateTime > ? ", userId, time.Unix(lastTime, 0)).Find(&messages); err != nil {
+		if err := mm.x.Where(" user_id = ? and create_time > ? ", userId, time.Unix(lastTime, 0)).Find(&messages); err != nil {
 			return nil, err
 		}
 	} else {
-		if err := mm.x.Where(" UserId = ? and CreateTime > ? and content like ? ", userId, time.Unix(lastTime, 0), "%"+searchData+"%").Find(&messages); err != nil {
+		if err := mm.x.Where(" user_id = ? and create_time > ? and content like ? ", userId, time.Unix(lastTime, 0), "%"+searchData+"%").Find(&messages); err != nil {
 			return nil, err
 		}
 	}

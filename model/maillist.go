@@ -1,7 +1,6 @@
 package model
 
 import (
-	"github.com/go-xorm/builder"
 	"github.com/go-xorm/xorm"
 	"time"
 )
@@ -44,28 +43,17 @@ func (mlm *MailListModel) FindByUserIdAndFriendId(friendId, userId int64) (*Mail
 
 	var (
 		ml MailList
-		eq = builder.Eq{
-			"FriendId": friendId,
-			"UserId":   userId,
-		}
 	)
 
-	if err := mlm.x.Find(&ml, eq); err != nil {
-		return nil, err
+	if find, err := mlm.x.Where("friend_id = ? and user_id = ?", friendId, userId).Get(&ml); err != nil || find == false {
+		return nil, ErrNotFind
 	}
 
 	return &ml, nil
 }
 
 func (mlm *MailListModel) CountByUserIdAndFriendId(friendId, userId int64) (int64, error) {
-	var (
-		eq = builder.Eq{
-			"FriendId": friendId,
-			"UserId":   userId,
-		}
-	)
-
-	return mlm.x.Count(eq)
+	return mlm.x.Where("friend_id = ? and user_id = ?", friendId, userId).Count(&MailList{})
 }
 
 func (mlm *MailListModel) Insert(data *MailList) (int64, error) {
@@ -75,21 +63,16 @@ func (mlm *MailListModel) Insert(data *MailList) (int64, error) {
 func (mlm *MailListModel) FindByUserId(nowPage, pageSize, userId int64, searchData string) ([]*MailList, error) {
 	var (
 		data []*MailList
-		eq   = builder.Eq{
-			"UserId": userId,
-		}
-		like = builder.Like{
-			"FriendName", "%" + searchData + "%",
-		}
 	)
 
 	// select * from table where userId = 111 limit 0, 10 反射
 	if searchData == "" {
-		if err := mlm.x.Limit(int(pageSize), int(pageSize)*int(nowPage-1)).Find(&data, eq); err != nil {
+		if err := mlm.x.Where("user_id = ? ", userId).Limit(int(pageSize), int(pageSize)*int(nowPage-1)).Find(&data); err != nil {
 			return nil, err
 		}
 	} else {
-		if err := mlm.x.Limit(int(pageSize), int(pageSize)*int(nowPage-1)).Find(&data, eq, like); err != nil {
+		if err := mlm.x.Where("user_id = ? and  friend_name like ?", userId, "%"+searchData+"%").
+			Limit(int(pageSize), int(pageSize)*int(nowPage-1)).Find(&data); err != nil {
 			return nil, err
 		}
 	}
@@ -99,32 +82,15 @@ func (mlm *MailListModel) FindByUserId(nowPage, pageSize, userId int64, searchDa
 
 //查找这个人有多少条记录
 func (mlm *MailListModel) CountByUserId(userId int64, searchData string) (int64, error) {
-	var (
-		eq = builder.Eq{
-			"UserId": userId,
-		}
-
-		like = builder.Like{
-			"FriendName", "%" + searchData + "%",
-		}
-	)
-
 	if searchData == "" {
-		return mlm.x.Count(eq)
+		return mlm.x.Where("user_id = ?", userId).Count(&MailList{})
 	} else {
-		return mlm.x.Count(eq, like) //select * from table where userId = 111 and FriendName like "%雨%"
+		return mlm.x.Where("user_id = ? and friend_name like ?", userId, "%"+searchData+"%").Count(&MailList{})
 	}
 }
 
 func (mlm *MailListModel) DeleteByUserIdAndFriendId(userId, friendId int64) (int64, error) {
-	var (
-		eq = builder.Eq{
-			"FriendId": friendId,
-			"UserId":   userId,
-		}
-	)
-
-	return mlm.x.Delete(eq)
+	return mlm.x.Where("friend_id = ? and user_id = ?", friendId, userId).Delete(&MailList{})
 }
 
 func (mlm *MailListModel) UpdateByUserIdAndFriendId(data *MailList) (int64, error) {

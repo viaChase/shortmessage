@@ -1,7 +1,9 @@
 package logic
 
 import (
+	"fmt"
 	"log"
+	er "shortmessage/error"
 	"shortmessage/model"
 )
 
@@ -39,11 +41,11 @@ type (
 
 // 增加联系人
 func (sml *ShortMessageLogic) AddContacts(req *AddContactsRequest, userId int64) error {
-
+	fmt.Println(req.ContactsName)
 	//判断用户是否已经添加了该联系人
 	count, _ := sml.mailListModel.CountByUserIdAndFriendId(req.ContactsId, userId)
 	if count > 0 {
-		return friendAlreadyExit
+		return er.FriendAlreadyExit
 	}
 
 	//插入数据
@@ -96,7 +98,7 @@ func (sml *ShortMessageLogic) DelContact(req *DeleteContactRequest, userId int64
 func (sml *ShortMessageLogic) UpdateContact(req *UpdateContactsRequest, userId int64) error {
 	data, err := sml.mailListModel.FindByUserIdAndFriendId(req.ContactsId, userId)
 	if err != nil {
-		return friendAlNotExit
+		return er.FriendAlNotExit
 	}
 
 	data.FriendName = req.ContactsName

@@ -2,6 +2,7 @@ package logic
 
 import (
 	"fmt"
+	er "shortmessage/error"
 	"shortmessage/model"
 	"time"
 )
@@ -47,7 +48,7 @@ func (sml *ShortMessageLogic) SendMessage(req *SendMessageRequest, userId int64)
 	//先判断用户是否存在
 	targetUser, err := sml.userModel.FindById(req.TargetUserId)
 	if err != nil || targetUser == nil {
-		return friendAlNotExit
+		return er.FriendAlNotExit
 	}
 
 	//如果该用户存在就往message数据库里插入一条数据
@@ -59,7 +60,7 @@ func (sml *ShortMessageLogic) SendMessage(req *SendMessageRequest, userId int64)
 	})
 
 	if err != nil {
-		return sendMessageField
+		return er.SendMessageField
 	}
 
 	return nil
@@ -116,6 +117,7 @@ func (sml *ShortMessageLogic) MessagePeopleView(req *MessagePeopleViewRequest, u
 	for friendId, messages := range friendMessageMap {
 		friendName := fmt.Sprintf("%v", friendId)
 		if mailList, err := sml.mailListModel.FindByUserIdAndFriendId(friendId, userId); err == nil {
+			fmt.Println(mailList)
 			friendName = mailList.FriendName
 		}
 

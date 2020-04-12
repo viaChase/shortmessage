@@ -2,6 +2,7 @@ package logic
 
 import (
 	"log"
+	er "shortmessage/error"
 	"shortmessage/model"
 )
 
@@ -64,6 +65,12 @@ func (sml *ShortMessageLogic) DelContent(req *DeleteContentRequest, userId int64
 func (sml *ShortMessageLogic) Update(req *UpdateContentRequest, userId int64) error {
 
 	//findone 函数
+	data, err := sml.memorandumModel.FindOne(req.Title, userId)
+	if err != nil {
+		return er.MemorandumNotExit
+	}
+
+	data.Title = req.Title
 
 	if _, err = sml.memorandumModel.Update(data); err != nil {
 		log.Println(err)
@@ -75,7 +82,7 @@ func (sml *ShortMessageLogic) Update(req *UpdateContentRequest, userId int64) er
 //获取备忘录列表
 func (sml *ShortMessageLogic) ContentList(req *ContentListRequest, userId int64) (*ContentListResponse, error) {
 
-	data, err := sml.memorandumModel.Find(userId, req.NowPage, req.PageSize, req.Search)
+	data, err := sml.memorandumModel.Find(userId, int(req.NowPage), int(req.PageSize), req.Search)
 	if err != nil {
 		return nil, err
 	}

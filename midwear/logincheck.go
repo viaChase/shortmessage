@@ -27,7 +27,7 @@ func LoginCheck() gin.HandlerFunc {
 			return
 		}
 
-		if jwt != common.Md5(fmt.Sprintf("%v-%v", userId, salt)) {
+		if jwt != common.Md5(fmt.Sprintf("%v-%v", userId, salt))[:32] {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}

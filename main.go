@@ -16,10 +16,10 @@ func Route(r *gin.Engine) {
 	home := r.Group("/home")
 	home.Use(midwear.LoginCheck())
 	{
-		home.POST("/add_contacts", handler.LoginHandler)
-		home.POST("/contacts_list", handler.go)
-		home.POST("/del_contact", handler.LoginHandler)
-		home.POST("/update_contact", handler.LoginHandler)
+		home.POST("/add_contacts", handler.AddContactsHandler)
+		home.POST("/contacts_list", handler.ContactsListHandler)
+		home.POST("/del_contact", handler.DelContactHandler)
+		home.POST("/update_contact", handler.UpdateContactHandler)
 		home.POST("/send_message", handler.SendMessageHandler)
 		home.POST("/message_view", handler.MessagePeopleViewHandler)
 	}
@@ -39,9 +39,24 @@ func main() {
 		panic(err)
 	}
 
+	mailListModel, err := model.NewMailListModel(x)
+	if err != nil {
+		panic(err)
+	}
+
+	messageModel, err := model.NewMessageModel(x)
+	if err != nil {
+		panic(err)
+	}
+
+	memorandumModel, err := model.NewMemorandumModel(x)
+	if err != nil {
+		panic(err)
+	}
+
 	var (
 		r = gin.New()
-		l = logic.NewShortMessageLogic(userModel, "123456")
+		l = logic.NewShortMessageLogic(userModel, mailListModel, messageModel, memorandumModel, "123456")
 	)
 
 	handler.RegLogic(l)
