@@ -38,7 +38,7 @@ func (mdm *MemorandumModel) Update(data *Memorandum) (int64, error) {
 }
 
 func (mdm *MemorandumModel) Delete(id int64) error {
-	var query = "delete from user where id = ? "
+	var query = "delete from user where i_d = ? "
 	_, err := mdm.x.Exec(query, id)
 	return err
 }
@@ -73,4 +73,8 @@ func (mdm *MemorandumModel) Count(userId int64, searchData string) (int64, error
 	} else {
 		return mdm.x.Where("userId = ？ and content like ？ ", userId, "%"+searchData+"%").Count(&Memorandum{})
 	}
+}
+
+func (mdm *MemorandumModel) DeleteByUserId(userId int64) (int64, error) {
+	return mdm.x.Where(" user_id = ?", userId).Delete(&Memorandum{})
 }

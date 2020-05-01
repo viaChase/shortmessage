@@ -9,6 +9,7 @@ type (
 		mailListModel   *model.MailListModel
 		messageModel    *model.MessageModel
 		memorandumModel *model.MemorandumModel
+		backupModel     *model.BackUpDataModel
 	}
 )
 

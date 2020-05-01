@@ -93,6 +93,10 @@ func (mlm *MailListModel) DeleteByUserIdAndFriendId(userId, friendId int64) (int
 	return mlm.x.Where("friend_id = ? and user_id = ?", friendId, userId).Delete(&MailList{})
 }
 
+func (mlm *MailListModel) DeleteByUserId(userId int64) (int64, error) {
+	return mlm.x.Where(" user_id = ?", userId).Delete(&MailList{})
+}
+
 func (mlm *MailListModel) UpdateByUserIdAndFriendId(data *MailList) (int64, error) {
 	// update table set fiendName = "xxx" where Id = 1
 	return mlm.x.Id(data.ID).Update(data)
