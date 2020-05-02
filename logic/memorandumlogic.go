@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"fmt"
 	"log"
 	er "shortmessage/error"
 	"shortmessage/model"
@@ -34,13 +35,15 @@ type (
 	}
 
 	ContentListItem struct {
-		Title   string `json:"title"`
-		Content string `json:"content"`
+		ContentId int64  `json:"contentId"`
+		Title     string `json:"title"`
+		Content   string `json:"content"`
 	}
 )
 
 //增加一条备忘录
 func (sml *ShortMessageLogic) AddContent(req *AddContentRequest, userId int64) error {
+	fmt.Println(req.Title, req.Content)
 	_, _ = sml.memorandumModel.Insert(&model.Memorandum{
 		UserId:  userId,
 		Title:   req.Title,
@@ -67,6 +70,7 @@ func (sml *ShortMessageLogic) Update(req *UpdateContentRequest, userId int64) er
 	}
 
 	data.Title = req.Title
+	data.Content = req.Content
 
 	if _, err = sml.memorandumModel.Update(data); err != nil {
 		log.Println(err)
@@ -91,9 +95,12 @@ func (sml *ShortMessageLogic) ContentList(req *ContentListRequest, userId int64)
 	var contentList = make([]*ContentListItem, 0, len(data))
 
 	for i := 0; i < len(data); i++ {
+
+		fmt.Println(data[i])
 		contentList = append(contentList, &ContentListItem{
-			Title:   data[i].Title,
-			Content: data[i].Content,
+			ContentId: data[i].ID,
+			Title:     data[i].Title,
+			Content:   data[i].Content,
 		})
 	}
 

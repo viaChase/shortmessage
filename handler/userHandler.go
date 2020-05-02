@@ -33,11 +33,11 @@ func RegisterHandler(context *gin.Context) {
 		return
 	}
 
-	resp, err := shortMessageLogic.Register(&req)
+	err := shortMessageLogic.Register(&req)
 	if err != nil {
 		context.String(http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	context.JSON(http.StatusOK, resp)
+	context.Status(http.StatusOK)
 }

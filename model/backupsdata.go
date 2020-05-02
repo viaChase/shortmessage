@@ -44,14 +44,14 @@ func (bdm *BackUpDataModel) Delete(id, userId int64) (int64, error) {
 
 func (bdm *BackUpDataModel) Find(userId int64, pageNum, pageSize int) ([]*BackUpData, error) {
 	var data []*BackUpData
-	if err := bdm.x.Where("user_id = ？ ", userId).Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
+	if err := bdm.x.Where("user_id = ? ", userId).Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
 		return nil, err
 	}
 	return data, nil
 }
 
 func (bdm *BackUpDataModel) Count(userId int64) (int64, error) {
-	return bdm.x.Where("user_id = ？ ", userId).Count(&BackUpData{})
+	return bdm.x.Where("user_id = ? ", userId).Count(&BackUpData{})
 }
 
 func (bdm *BackUpDataModel) FindById(userId, id int64) (*BackUpData, error) {

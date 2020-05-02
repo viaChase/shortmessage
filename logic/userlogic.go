@@ -13,10 +13,6 @@ type (
 		PassWard string `json:"pass_ward"`
 	}
 
-	RegisterResponse struct {
-		UserId int64 `json:"user_id"`
-	}
-
 	LoginRequest struct {
 		UserName string `json:"user_name"`
 		PassWard string `json:"pass_ward"`
@@ -27,24 +23,24 @@ type (
 	}
 )
 
-func (sml *ShortMessageLogic) Register(req *RegisterRequest) (*RegisterResponse, error) {
+func (sml *ShortMessageLogic) Register(req *RegisterRequest) error {
 	//先判断用户名是否存在
 	userNameCount, err := sml.userModel.CountByName(req.UserName)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if userNameCount >= 1 {
-		return nil, er.UserNamAlreadyExit
+		return er.UserNamAlreadyExit
 	}
 
 	//返回用户id
-	userId, err := sml.userModel.Insert(&model.User{UserName: req.UserName, PassWord: req.PassWard})
+	_, err = sml.userModel.Insert(&model.User{UserName: req.UserName, PassWord: req.PassWard})
 	if err != nil {
-		return nil, er.UserCreateFailed
+		return er.UserCreateFailed
 	}
 
-	return &RegisterResponse{UserId: userId}, nil
+	return nil
 }
 
 func (sml *ShortMessageLogic) Login(req *LoginRequest) (int64, string, *LoginResponse, error) {

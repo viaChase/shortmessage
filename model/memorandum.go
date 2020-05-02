@@ -46,12 +46,12 @@ func (mdm *MemorandumModel) Delete(id, userId int64) error {
 func (mdm *MemorandumModel) Find(userId int64, pageNum, pageSize int, searchData string) ([]*Memorandum, error) {
 	var data []*Memorandum
 	if searchData == "" {
-		if err := mdm.x.Where("user_id = ？ ", userId).Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
+		if err := mdm.x.Where("user_id = ? ", userId).Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
 			return nil, err
 		}
 
 	} else {
-		if err := mdm.x.Where("user_id = ？ and content like ？ ", userId, "%"+searchData+"%").Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
+		if err := mdm.x.Where("user_id = ? and content like ? ", userId, "%"+searchData+"%").Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
 			return nil, err
 		}
 	}
@@ -76,10 +76,10 @@ func (mdm *MemorandumModel) FindOne(id, userId int64) (*Memorandum, error) {
 func (mdm *MemorandumModel) Count(userId int64, searchData string) (int64, error) {
 
 	if searchData == "" {
-		return mdm.x.Where("user_id = ？ ", userId).Count(&Memorandum{})
+		return mdm.x.Where("user_id = ? ", userId).Count(&Memorandum{})
 
 	} else {
-		return mdm.x.Where("user_id = ？ and content like ？ ", userId, "%"+searchData+"%").Count(&Memorandum{})
+		return mdm.x.Where("user_id = ? and content like ? ", userId, "%"+searchData+"%").Count(&Memorandum{})
 	}
 }
 

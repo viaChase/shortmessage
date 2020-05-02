@@ -11,7 +11,7 @@ import (
 func AddContentHandler(context *gin.Context) {
 	var req logic.AddContentRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.BindJSON(&req); err != nil {
 		return
 	}
 
@@ -32,7 +32,7 @@ func AddContentHandler(context *gin.Context) {
 func DelContentHandler(context *gin.Context) {
 	var req logic.DeleteContentRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.BindJSON(&req); err != nil {
 		return
 	}
 
@@ -53,7 +53,7 @@ func DelContentHandler(context *gin.Context) {
 func UpdateContentHandler(context *gin.Context) {
 	var req logic.UpdateContentRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.BindJSON(&req); err != nil {
 		return
 	}
 
@@ -74,7 +74,7 @@ func UpdateContentHandler(context *gin.Context) {
 func ContentsListHandler(context *gin.Context) {
 	var req logic.ContentListRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.BindJSON(&req); err != nil {
 		return
 	}
 

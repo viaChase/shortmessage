@@ -117,7 +117,6 @@ func (sml *ShortMessageLogic) MessagePeopleView(req *MessagePeopleViewRequest, u
 	for friendId, messages := range friendMessageMap {
 		friendName := fmt.Sprintf("%v", friendId)
 		if mailList, err := sml.mailListModel.FindByUserIdAndFriendId(friendId, userId); err == nil {
-			fmt.Println(mailList)
 			friendName = mailList.FriendName
 		}
 

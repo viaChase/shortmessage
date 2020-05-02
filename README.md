@@ -1,12 +1,12 @@
 # shortmessage
 
 ## 注册接口
-* URL ：127.0.0.1:8081/register
+* URL :127.0.0.1:8081/register
 
-请求参数 ：
+请求参数 :
 ```json
 {
-	"user_name":"jd",
+	"user_name":"aaa",
 	"pass_ward":"123456"
 }
 ```
@@ -15,38 +15,38 @@
 
 ## 登入接口
 
-* URL ：127.0.0.1:8081/login
+* URL :127.0.0.1:8081/login
 
-请求参数 ：
+请求参数 :
 ```json
 {
-	"user_name":"jd",
+	"user_name":"aaa",
 	"pass_ward":"123456"
 }
 ```
 
 成功后会在header头 增加
-Userid int
+UserId int
 Jwt   string 
 之后每次访问都需带入这两个header保持登入状态
 
 
 ## 添加通讯录接口
 
-* URL ：127.0.0.1:8081/home/add_contacts
+* URL :http://127.0.0.1:8081/home/contacts/add
 
-请求参数 ：
+请求参数 :
 ```json
 {
-"contactsId":1,        //朋友id
+"contactsId":13987761435,        //朋友id
 "contactsName":"xasa"  //备注名
 } 
 ```
 ## 添加通讯录列表接口
 
-* URL ：127.0.0.1:8081/home/contacts_list
+* URL :http://127.0.0.1:8081/home/contacts/list
 
-请求参数 ：
+请求参数 :
 ```json
 {
 	"search":"",     //关键词搜索,如果不带就直接搜全部
@@ -61,8 +61,8 @@ Jwt   string
     "count": 1,
     "contactsList": [
         {
-            "friendName": "sss",
-            "friendId": 1
+            "friendName": "xasa",
+            "friendId": 13987761435
         }
     ]
 }
@@ -70,19 +70,19 @@ Jwt   string
 
 ## 删除通讯录接口
 
-* URL ：127.0.0.1:8081/home/del_contact
+* URL :http://127.0.0.1:8081/home/contact/delete
 
-请求参数 ：
+请求参数 :
 ```json
 {
-	"friendId":0   //删除朋友id
+	"friendId":13987761435   //删除朋友id
 }
 ```
 ## 更新通讯录接口
 
-* URL ：127.0.0.1:8081/home/update_contact
+* URL :http://127.0.0.1:8081/home/contact/update
 
-请求参数 ：
+请求参数 :
 ```json
 {
 "contactsId":1,        //朋友id
@@ -91,47 +91,163 @@ Jwt   string
 
 ```
 
-## 发送信息接口
+## 备忘录增加接口
 
-* URL ：127.0.0.1:8081/home/send_message
+* URL :http://127.0.0.1:8081/home/content/add
 
-请求参数 ：
+请求参数 :
 ```json
 {
-	"targetUserId":1,   //发送对象的id
-	"content":"test"    //内容
+	"title":"this",
+	"content":"this is a new text"
 }
+```
 
+
+## 备忘录列表
+
+* URL :http://127.0.0.1:8081/home/content/list
+
+请求参数 :
+```json
+{
+	"search":"",
+	"pageSize":100,
+	"nowPage":1
+}
+```
+
+返回数据 :
+```json
+{
+    "count": 1,
+    "contentlist": [
+        {
+            "contentId": 4,
+            "title": "",
+            "content": ""
+        }
+    ]
+}
+```
+
+## 备忘录修改
+
+* URL :http://127.0.0.1:8081/home/content/update
+
+请求参数 :
+```json
+{
+	"contentId":1,
+	"title":"11",
+	"content":"22"
+}
+```
+
+## 备忘录删除
+
+* URL :http://127.0.0.1:8081/home/content/delete
+
+请求参数 :
+```json
+{
+	"id":5
+}
+```
+
+## 发送信息接口
+
+* URL :http://127.0.0.1:8081/home/message/send
+
+请求参数 :
+```json
+{
+	"targetUserId":1,
+	"content":"xixi"
+}
 ```
 
 
 ## 轮询 获得消息信息接口
 
+* URL : http://127.0.0.1:8081/home/message/view
+
 请求参数 :
 ```json
 {
-	"lastTime":0,     //上次请求信息时间，如果是当登入直接用 0
-	"searchData":""   //搜索关键词
+	"data_type":1,   // 0 获得所有已读的信息 1 获得未读的信息 拿来轮询
+	"searchData":""  //只在dataType 为0的时候有效
 }
 ```
 
 返回数据:
 ```json
 {
-    "lastTime": 1586664166,    //下次请求时间
     "userMessageList": [
         {
-            "userId": 2,       //消息发送人id
-            "userName": "",    //该人的备注名,
+            "userId": 3,
+            "userName": "3",
             "messageList": [
                 {
                     "messageId": 1,
-                    "content": "test",
-                    "createTime": 1586664166,
-                    "isNew": true
+                    "content": "xixi",
+                    "createTime": 1588414560,
+                    "isNew": false
                 }
             ]
         }
     ]
+}
+```
+
+
+## 当前数据备份
+
+* URL :http://127.0.0.1:8081/home/backup/add
+
+请求参数 :
+```json
+{
+	"data_type":1  //1:对通讯录进行备份 2:对备忘录进行备份 3:对消息进行备份
+}
+```
+
+## 备份数据的列表
+
+* URL :http://127.0.0.1:8081/home/backup/list
+
+请求参数 :
+```json
+{
+    "count": 1,
+    "data": [
+        {
+            "back_id": 4,
+            "create_time": 1588416826,
+            "data_type": 1
+        }
+    ]
+}
+```
+
+## 备份数据还原
+
+* URL :http://127.0.0.1:8081/home/backup/do
+
+请求参数 :
+```json
+{
+	"id":3
+}
+```
+
+## 备份数据删除
+
+* URL :http://127.0.0.1:8081/home/backup/delete
+
+请求参数 :
+```json
+{
+	"id":3
 }
 ```

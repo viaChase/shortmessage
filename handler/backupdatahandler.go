@@ -11,7 +11,7 @@ import (
 func BackupAddHandler(context *gin.Context) {
 	var req logic.BackupDataAddRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.BindJSON(&req); err != nil {
 		return
 	}
 
@@ -32,7 +32,7 @@ func BackupAddHandler(context *gin.Context) {
 func BackupDeleteHandler(context *gin.Context) {
 	var req logic.BackupDataDeleteRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.BindJSON(&req); err != nil {
 		return
 	}
 
@@ -53,7 +53,7 @@ func BackupDeleteHandler(context *gin.Context) {
 func BackupListHandler(context *gin.Context) {
 	var req logic.BackupDataListRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.BindJSON(&req); err != nil {
 		return
 	}
 
@@ -75,7 +75,7 @@ func BackupListHandler(context *gin.Context) {
 func BackupHandler(context *gin.Context) {
 	var req logic.BackupRequest
 
-	if err := context.BindQuery(&req); err != nil {
+	if err := context.BindJSON(&req); err != nil {
 		return
 	}
 

@@ -2,6 +2,7 @@ package logic
 
 import (
 	"encoding/json"
+	"fmt"
 	"shortmessage/model"
 )
 
@@ -25,6 +26,7 @@ type (
 	}
 
 	BackupDataListItem struct {
+		BackId     int64 `json:"back_id"`
 		CreateTime int64 `json:"create_time"`
 		DataType   int64 `json:"data_type"`
 	}
@@ -79,6 +81,8 @@ func (sml *ShortMessageLogic) BackupAdd(req *BackupDataAddRequest, userId int64)
 		jsonData = string(dataBytes)
 	}
 
+	fmt.Println(jsonData)
+
 	_, err := sml.backupModel.Insert(&model.BackUpData{DataType: req.DataType, UserId: userId, Data: jsonData})
 	return err
 }
@@ -103,6 +107,7 @@ func (sml *ShortMessageLogic) BackupList(req *BackupDataListRequest, userId int6
 
 	for _, data := range dataList {
 		resp.Data = append(resp.Data, &BackupDataListItem{
+			BackId:     data.ID,
 			CreateTime: data.CreateTime.Unix(),
 			DataType:   data.DataType,
 		})
