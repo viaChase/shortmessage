@@ -5,12 +5,18 @@ import (
 	"time"
 )
 
+const (
+	MessageAllType = 0
+	MessageNewType = 1
+)
+
 type (
 	Message struct {
 		ID         int64     //自增id
 		SendId     int64     `xorm:"INTEGER"`      //发送id
 		UserId     int64     `xorm:"INTEGER"`      //接受者id
 		Content    string    `xorm:"varchar(400)"` //消息内容
+		IsRead     int64     `xorm:"INTEGER"`      //是否已读
 		CreateTime time.Time `xorm:"created"`      //创建时间
 	}
 
@@ -55,34 +61,45 @@ func (mm *MessageModel) Insert(data *Message) (int64, error) {
 	return mm.x.Insert(data)
 }
 
-func (mm *MessageModel) FindNewMessage(userId, lastTime int64) ([]*Message, error) {
+//查找所有未读消息
+func (mm *MessageModel) FindNewMessage(userId int64) ([]*Message, error) {
 	var (
 		messages []*Message
 	)
 
-	if err := mm.x.Where("create_time > ? and user_id = ? ", time.Unix(lastTime, 0), userId).
-		Find(&messages); err != nil {
+	if err := mm.x.Where(" user_id = ? and is_read = 0 ", userId).Find(&messages); err != nil {
 		return nil, err
 	}
 
 	return messages, nil
 }
 
-func (mm *MessageModel) FindAllMessage(userId, lastTime int64, searchData string) ([]*Message, error) {
+//查找所有已读消息
+func (mm *MessageModel) FindAllMessage(userId int64, searchData string) ([]*Message, error) {
 	var (
 		messages []*Message
 	)
 
 	//select xxx from xxx where userid = ? and searchData like %?%
 	if searchData == "" {
-		if err := mm.x.Where(" user_id = ? and create_time > ? ", userId, time.Unix(lastTime, 0)).Find(&messages); err != nil {
+		if err := mm.x.Where(" user_id = ? and is_read = 1 ", userId).Find(&messages); err != nil {
 			return nil, err
 		}
 	} else {
-		if err := mm.x.Where(" user_id = ? and create_time > ? and content like ? ", userId, time.Unix(lastTime, 0), "%"+searchData+"%").Find(&messages); err != nil {
+		if err := mm.x.Where(" user_id = ?  and is_read = 1 and content like ? ", userId, "%"+searchData+"%").Find(&messages); err != nil {
 			return nil, err
 		}
 	}
 
 	return messages, nil
+}
+
+//删除所有已读消息
+func (mm *MessageModel) DeleteReadMessageByUserId(userId int64) (int64, error) {
+	return mm.x.Where(" user_id = ? and is_read = 1 ", userId).Delete(&Message{})
+}
+
+func (mm *MessageModel) SetMessageRead(messageId, userId int64) error {
+	_, err := mm.x.Exec("update message set is_read = 1 where i_d = ? and user_id = ? ", messageId, userId)
+	return err
 }

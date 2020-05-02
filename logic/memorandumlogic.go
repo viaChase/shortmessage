@@ -6,18 +6,14 @@ import (
 	"shortmessage/model"
 )
 
-//todo 备忘录
-
 type (
 	AddContentRequest struct {
-		UserId  int64  `json:"userId"`
 		Title   string `json:"title"`
 		Content string `json:"content"`
 	}
 
 	DeleteContentRequest struct {
-		UserId int64  `json:"userId"`
-		Title  string `json:"title"`
+		Id int64 `json:"id"`
 	}
 
 	UpdateContentRequest struct {
@@ -46,7 +42,7 @@ type (
 //增加一条备忘录
 func (sml *ShortMessageLogic) AddContent(req *AddContentRequest, userId int64) error {
 	_, _ = sml.memorandumModel.Insert(&model.Memorandum{
-		UserId:  req.UserId,
+		UserId:  userId,
 		Title:   req.Title,
 		Content: req.Content,
 	})
@@ -55,7 +51,7 @@ func (sml *ShortMessageLogic) AddContent(req *AddContentRequest, userId int64) e
 
 //删除一条备忘录
 func (sml *ShortMessageLogic) DelContent(req *DeleteContentRequest, userId int64) error {
-	if err := sml.memorandumModel.Delete(userId); err != nil {
+	if err := sml.memorandumModel.Delete(req.Id, userId); err != nil {
 		log.Println(err)
 	}
 	return nil
@@ -65,7 +61,7 @@ func (sml *ShortMessageLogic) DelContent(req *DeleteContentRequest, userId int64
 func (sml *ShortMessageLogic) Update(req *UpdateContentRequest, userId int64) error {
 
 	//findone 函数
-	data, err := sml.memorandumModel.FindOne(req.Title, userId)
+	data, err := sml.memorandumModel.FindOne(req.ContentId, userId)
 	if err != nil {
 		return er.MemorandumNotExit
 	}

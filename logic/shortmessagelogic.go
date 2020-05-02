@@ -18,6 +18,7 @@ func NewShortMessageLogic(
 	mailListModel *model.MailListModel,
 	messageModel *model.MessageModel,
 	memorandumModel *model.MemorandumModel,
+	backupDataModel *model.BackUpDataModel,
 	salt string) *ShortMessageLogic {
 	return &ShortMessageLogic{
 		salt:            salt,
@@ -25,5 +26,6 @@ func NewShortMessageLogic(
 		mailListModel:   mailListModel,
 		messageModel:    messageModel,
 		memorandumModel: memorandumModel,
+		backupModel:     backupDataModel,
 	}
 }

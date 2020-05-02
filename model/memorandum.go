@@ -37,21 +37,21 @@ func (mdm *MemorandumModel) Update(data *Memorandum) (int64, error) {
 
 }
 
-func (mdm *MemorandumModel) Delete(id int64) error {
-	var query = "delete from user where i_d = ? "
-	_, err := mdm.x.Exec(query, id)
+func (mdm *MemorandumModel) Delete(id, userId int64) error {
+	var query = "delete from memorandum where i_d = ?  and user_id = ? "
+	_, err := mdm.x.Exec(query, id, userId)
 	return err
 }
 
 func (mdm *MemorandumModel) Find(userId int64, pageNum, pageSize int, searchData string) ([]*Memorandum, error) {
 	var data []*Memorandum
 	if searchData == "" {
-		if err := mdm.x.Where("userId = ？ ", userId).Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
+		if err := mdm.x.Where("user_id = ？ ", userId).Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
 			return nil, err
 		}
 
 	} else {
-		if err := mdm.x.Where("userId = ？ and content like ？ ", userId, "%"+searchData+"%").Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
+		if err := mdm.x.Where("user_id = ？ and content like ？ ", userId, "%"+searchData+"%").Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
 			return nil, err
 		}
 	}
@@ -59,19 +59,27 @@ func (mdm *MemorandumModel) Find(userId int64, pageNum, pageSize int, searchData
 	return data, nil
 }
 
-func (mdm *MemorandumModel) FindOne(title string, userid int64) (*Memorandum, error) {
+func (mdm *MemorandumModel) FindOne(id, userId int64) (*Memorandum, error) {
 
-	return nil, nil
+	var (
+		data Memorandum
+	)
+
+	if find, err := mdm.x.Where(" i_d = ? and user_id = ? ", id, userId).Get(&data); err != nil || find == false {
+		return nil, ErrNotFind
+	}
+
+	return &data, nil
 
 }
 
 func (mdm *MemorandumModel) Count(userId int64, searchData string) (int64, error) {
 
 	if searchData == "" {
-		return mdm.x.Where("userId = ？ ", userId).Count(&Memorandum{})
+		return mdm.x.Where("user_id = ？ ", userId).Count(&Memorandum{})
 
 	} else {
-		return mdm.x.Where("userId = ？ and content like ？ ", userId, "%"+searchData+"%").Count(&Memorandum{})
+		return mdm.x.Where("user_id = ？ and content like ？ ", userId, "%"+searchData+"%").Count(&Memorandum{})
 	}
 }
 

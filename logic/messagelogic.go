@@ -21,12 +21,11 @@ type (
 	}
 
 	MessagePeopleViewRequest struct {
-		LastTime   int64  `json:"lastTime"`
+		DataType   int64  `json:"data_type"`
 		SearchData string `json:"searchData"`
 	}
 
 	MessagePeopleViewResponse struct {
-		LastTime        int64                  `json:"lastTime"`
 		UserMessageList []*UserMessageListItem `json:"userMessageList"`
 	}
 
@@ -41,6 +40,10 @@ type (
 		Content    string `json:"content"`
 		CreateTime int64  `json:"createTime"`
 		IsNew      bool   `json:"isNew"`
+	}
+
+	MessageReadRequest struct {
+		MessageId []int64
 	}
 )
 
@@ -70,26 +73,24 @@ func (sml *ShortMessageLogic) SendMessage(req *SendMessageRequest, userId int64)
 func (sml *ShortMessageLogic) MessagePeopleView(req *MessagePeopleViewRequest, userId int64) (*MessagePeopleViewResponse, error) {
 
 	var (
-		lastTime = req.LastTime
-		hasNew   = false
+		messageList      []*model.Message
+		unReadMessageIds []int64
+		err              error
 	)
 
-	if req.LastTime == 0 {
-		user, err := sml.userModel.FindById(userId)
-		if err != nil {
-			return nil, err
-		}
-		lastTime = user.LastReadMessageTime
+	switch req.DataType {
+	case model.MessageAllType:
+		messageList, err = sml.messageModel.FindAllMessage(userId, req.SearchData)
+	case model.MessageNewType:
+		messageList, err = sml.messageModel.FindNewMessage(userId)
 	}
 
-	messageList, err := sml.messageModel.FindAllMessage(userId, req.LastTime, req.SearchData)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(messageList) == 0 {
 		return &MessagePeopleViewResponse{
-			LastTime:        lastTime,
 			UserMessageList: nil,
 		}, nil
 	}
@@ -101,17 +102,16 @@ func (sml *ShortMessageLogic) MessagePeopleView(req *MessagePeopleViewRequest, u
 
 	for _, message := range messageList {
 
-		if message.CreateTime.Unix() > lastTime {
-			lastTime = message.CreateTime.Unix()
-			hasNew = true
-		}
-
 		friendMessageMap[message.SendId] = append(friendMessageMap[message.SendId], &MessageItem{
 			MessageId:  message.ID,
 			Content:    message.Content,
 			CreateTime: message.CreateTime.Unix(),
-			IsNew:      message.CreateTime.Unix() > req.LastTime,
+			IsNew:      message.IsRead == 0,
 		})
+
+		if message.IsRead == 0 {
+			unReadMessageIds = append(unReadMessageIds, message.ID)
+		}
 	}
 
 	for friendId, messages := range friendMessageMap {
@@ -128,9 +128,9 @@ func (sml *ShortMessageLogic) MessagePeopleView(req *MessagePeopleViewRequest, u
 		})
 	}
 
-	resp.LastTime = lastTime
-	if hasNew {
-		_ = sml.userModel.UpdateLastReadTime(userId, lastTime)
+	//把未读消息设置为已读消息
+	for _, unReadMessageId := range unReadMessageIds {
+		_ = sml.messageModel.SetMessageRead(unReadMessageId, userId)
 	}
 
 	return resp, nil

@@ -66,7 +66,7 @@ func (sml *ShortMessageLogic) BackupAdd(req *BackupDataAddRequest, userId int64)
 		jsonData = string(dataBytes)
 
 	case model.MessageType:
-		dataList, err := sml.messageModel.FindAllMessage(userId, 0, "")
+		dataList, err := sml.messageModel.FindAllMessage(userId, "")
 		if err != nil {
 			return err
 		}
@@ -134,7 +134,7 @@ func (sml *ShortMessageLogic) BackUp(req *BackupRequest, userId int64) error {
 		}
 
 	case model.MessageType:
-		//todo 删除已读信息
+		_, _ = sml.messageModel.DeleteReadMessageByUserId(userId)
 		var dataList []*model.Message
 		_ = json.Unmarshal([]byte(data.Data), &dataList)
 		for _, data := range dataList {

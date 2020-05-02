@@ -16,12 +16,23 @@ func Route(r *gin.Engine) {
 	home := r.Group("/home")
 	home.Use(midwear.LoginCheck())
 	{
-		home.POST("/add_contacts", handler.AddContactsHandler)
-		home.POST("/contacts_list", handler.ContactsListHandler)
-		home.POST("/del_contact", handler.DelContactHandler)
-		home.POST("/update_contact", handler.UpdateContactHandler)
-		home.POST("/send_message", handler.SendMessageHandler)
-		home.POST("/message_view", handler.MessagePeopleViewHandler)
+		home.POST("/contacts/add", handler.AddContactsHandler)
+		home.POST("/contacts/list", handler.ContactsListHandler)
+		home.POST("/contact/delete", handler.DelContactHandler)
+		home.POST("/contact/update", handler.UpdateContactHandler)
+
+		home.POST("/message/send", handler.SendMessageHandler)
+		home.POST("/message/view", handler.MessagePeopleViewHandler)
+
+		home.POST("/backup/add", handler.BackupAddHandler)
+		home.POST("/backup/delete", handler.BackupDeleteHandler)
+		home.POST("/backup/list", handler.BackupListHandler)
+		home.POST("/backup/do", handler.BackupHandler)
+
+		home.POST("/content/add", handler.AddContentHandler)
+		home.POST("/content/delete", handler.DelContentHandler)
+		home.POST("/content/update", handler.UpdateContentHandler)
+		home.POST("/content/list", handler.ContentsListHandler)
 	}
 
 	r.POST("/login", handler.LoginHandler)
@@ -54,9 +65,14 @@ func main() {
 		panic(err)
 	}
 
+	backupDataModel, err := model.NewBackUpDataModel(x)
+	if err != nil {
+		panic(err)
+	}
+
 	var (
 		r = gin.New()
-		l = logic.NewShortMessageLogic(userModel, mailListModel, messageModel, memorandumModel, "123456")
+		l = logic.NewShortMessageLogic(userModel, mailListModel, messageModel, memorandumModel, backupDataModel, "123456")
 	)
 
 	handler.RegLogic(l)
