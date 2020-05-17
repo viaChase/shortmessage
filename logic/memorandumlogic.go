@@ -96,7 +96,6 @@ func (sml *ShortMessageLogic) ContentList(req *ContentListRequest, userId int64)
 
 	for i := 0; i < len(data); i++ {
 
-		fmt.Println(data[i])
 		contentList = append(contentList, &ContentListItem{
 			ContentId: data[i].ID,
 			Title:     data[i].Title,

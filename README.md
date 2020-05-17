@@ -111,7 +111,7 @@ Jwt   string
 请求参数 :
 ```json
 {
-	"search":"",
+	"search":"", //搜索关键词
 	"pageSize":100,
 	"nowPage":1
 }

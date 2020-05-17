@@ -51,7 +51,7 @@ func (mdm *MemorandumModel) Find(userId int64, pageNum, pageSize int, searchData
 		}
 
 	} else {
-		if err := mdm.x.Where("user_id = ? and content like ? ", userId, "%"+searchData+"%").Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
+		if err := mdm.x.Where("user_id = ? and ( content like ? or title like ? ) ", userId, "%"+searchData+"%", "%"+searchData+"%").Limit(pageSize, (pageNum-1)*pageSize).Find(&data); err != nil {
 			return nil, err
 		}
 	}
@@ -79,7 +79,7 @@ func (mdm *MemorandumModel) Count(userId int64, searchData string) (int64, error
 		return mdm.x.Where("user_id = ? ", userId).Count(&Memorandum{})
 
 	} else {
-		return mdm.x.Where("user_id = ? and content like ? ", userId, "%"+searchData+"%").Count(&Memorandum{})
+		return mdm.x.Where("user_id = ? and ( content like ? or title like ? ) ", userId, "%"+searchData+"%", "%"+searchData+"%").Count(&Memorandum{})
 	}
 }
 
