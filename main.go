@@ -23,6 +23,8 @@ func Route(r *gin.Engine) {
 
 		home.POST("/message/send", handler.SendMessageHandler)
 		home.POST("/message/view", handler.MessagePeopleViewHandler)
+		home.POST("/message/read", handler.MessageReadHandler)
+		home.POST("/message/delete", handler.MessageDeleteHandler)
 
 		home.POST("/backup/add", handler.BackupAddHandler)
 		home.POST("/backup/delete", handler.BackupDeleteHandler)

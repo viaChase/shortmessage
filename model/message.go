@@ -17,6 +17,7 @@ type (
 		UserId     int64     `xorm:"INTEGER"`      //接受者id
 		Content    string    `xorm:"varchar(400)"` //消息内容
 		IsRead     int64     `xorm:"INTEGER"`      //是否已读
+		SelfId     int64     `xorm:"INTEGER"`      //发送人的id  这个selfId 不为空就说明 这条记录是用作发送记录查看的
 		CreateTime time.Time `xorm:"created"`      //创建时间
 	}
 
@@ -74,7 +75,7 @@ func (mm *MessageModel) FindNewMessage(userId int64) ([]*Message, error) {
 	return messages, nil
 }
 
-//查找所有已读消息
+//查找所有已读消息 和 自己的发送记录
 func (mm *MessageModel) FindAllMessage(userId int64, searchData string) ([]*Message, error) {
 	var (
 		messages []*Message
@@ -82,11 +83,11 @@ func (mm *MessageModel) FindAllMessage(userId int64, searchData string) ([]*Mess
 
 	//select xxx from xxx where userid = ? and searchData like %?%
 	if searchData == "" {
-		if err := mm.x.Where(" user_id = ? and is_read = 1 ", userId).Find(&messages); err != nil {
+		if err := mm.x.Where(" ( user_id = ? and is_read = 1 ) or self_id = ? ", userId, userId).Find(&messages); err != nil {
 			return nil, err
 		}
 	} else {
-		if err := mm.x.Where(" user_id = ?  and is_read = 1 and content like ? ", userId, "%"+searchData+"%").Find(&messages); err != nil {
+		if err := mm.x.Where("( ( user_id = ?  and is_read = 1) or self_id = ? )  and content like ? ", userId, userId, "%"+searchData+"%").Find(&messages); err != nil {
 			return nil, err
 		}
 	}
@@ -102,4 +103,9 @@ func (mm *MessageModel) DeleteReadMessageByUserId(userId int64) (int64, error) {
 func (mm *MessageModel) SetMessageRead(messageId, userId int64) error {
 	_, err := mm.x.Exec("update message set is_read = 1 where i_d = ? and user_id = ? ", messageId, userId)
 	return err
+}
+
+//删除所有消息
+func (mm *MessageModel) DeleteMessageById(userId, messageId int64) (int64, error) {
+	return mm.x.Where(" user_id = ? and is_read = 1 and i_d = ? ", userId, messageId).Delete(&Message{})
 }

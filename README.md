@@ -155,6 +155,31 @@ Jwt   string
 }
 ```
 
+## 把消息置为已读
+自己发送的消息默认已读，所有未读消息必须调用这个接口改成已读状态
+
+* URL :http://127.0.0.1:8081/home/message/read
+
+请求参数 :
+```json
+{
+	"message_id":[] //消息id
+}
+```
+
+## 删除消息
+
+* URL :http://127.0.0.1:8081/home/message/delete
+
+请求参数 :
+```json
+{
+	"message_id":[] //消息id
+}
+```
+
+
+
 ## 发送信息接口
 
 * URL :http://127.0.0.1:8081/home/message/send
@@ -192,7 +217,8 @@ Jwt   string
                     "messageId": 1,
                     "content": "xixi",
                     "createTime": 1588414560,
-                    "isNew": false
+                    "isNew": false,
+                    "isSelf": false //是否是自己发送的信息
                 }
             ]
         }

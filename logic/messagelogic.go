@@ -39,11 +39,16 @@ type (
 		MessageId  int64  `json:"messageId"`
 		Content    string `json:"content"`
 		CreateTime int64  `json:"createTime"`
+		IsSelf     bool   `json:"isSelf"`
 		IsNew      bool   `json:"isNew"`
 	}
 
 	MessageReadRequest struct {
-		MessageId []int64
+		MessageId []int64 `json:"message_id"`
+	}
+
+	MessageDeleteRequest struct {
+		MessageId []int64 `json:"message_id"`
 	}
 )
 
@@ -59,6 +64,21 @@ func (sml *ShortMessageLogic) SendMessage(req *SendMessageRequest, userId int64)
 		SendId:     userId,
 		UserId:     targetUser.ID,
 		Content:    req.Content,
+		SelfId:     0,
+		CreateTime: time.Now(),
+	})
+
+	if err != nil {
+		return er.SendMessageField
+	}
+
+	//插入发送记录
+	_, err = sml.messageModel.Insert(&model.Message{
+		SendId:     userId,
+		UserId:     targetUser.ID,
+		Content:    req.Content,
+		SelfId:     userId,
+		IsRead:     1,
 		CreateTime: time.Now(),
 	})
 
@@ -73,9 +93,8 @@ func (sml *ShortMessageLogic) SendMessage(req *SendMessageRequest, userId int64)
 func (sml *ShortMessageLogic) MessagePeopleView(req *MessagePeopleViewRequest, userId int64) (*MessagePeopleViewResponse, error) {
 
 	var (
-		messageList      []*model.Message
-		unReadMessageIds []int64
-		err              error
+		messageList []*model.Message
+		err         error
 	)
 
 	switch req.DataType {
@@ -102,16 +121,19 @@ func (sml *ShortMessageLogic) MessagePeopleView(req *MessagePeopleViewRequest, u
 
 	for _, message := range messageList {
 
+		//selfId 不等于0 说明，这条消息肯定是 消息记录，如果这条消息记录不是自己的 就直接过滤
+		if message.SelfId != 0 && message.SelfId != userId {
+			continue
+		}
+
 		friendMessageMap[message.SendId] = append(friendMessageMap[message.SendId], &MessageItem{
 			MessageId:  message.ID,
 			Content:    message.Content,
 			CreateTime: message.CreateTime.Unix(),
 			IsNew:      message.IsRead == 0,
+			IsSelf:     message.SelfId == userId, //是否是发送消息
 		})
 
-		if message.IsRead == 0 {
-			unReadMessageIds = append(unReadMessageIds, message.ID)
-		}
 	}
 
 	for friendId, messages := range friendMessageMap {
@@ -127,10 +149,19 @@ func (sml *ShortMessageLogic) MessagePeopleView(req *MessagePeopleViewRequest, u
 		})
 	}
 
-	//把未读消息设置为已读消息
-	for _, unReadMessageId := range unReadMessageIds {
+	return resp, nil
+}
+
+//把某些消息置为已读
+func (sml *ShortMessageLogic) MessageRead(req *MessageReadRequest, userId int64) {
+	for _, unReadMessageId := range req.MessageId {
 		_ = sml.messageModel.SetMessageRead(unReadMessageId, userId)
 	}
+}
 
-	return resp, nil
+//删除指定消息
+func (sml *ShortMessageLogic) MessageDelete(req *MessageDeleteRequest, userId int64) {
+	for _, messageId := range req.MessageId {
+		_, _ = sml.messageModel.DeleteMessageById(userId, messageId)
+	}
 }
