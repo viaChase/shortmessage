@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-xorm/xorm"
+	"net/http"
 	"shortmessage/handler"
 	"shortmessage/logic"
 	"shortmessage/midwear"
@@ -39,6 +40,10 @@ func Route(r *gin.Engine) {
 
 	r.POST("/login", handler.LoginHandler)
 	r.POST("/register", handler.RegisterHandler)
+
+	r.GET("/hello", func(context *gin.Context) {
+		context.String(http.StatusOK, "hello world")
+	})
 }
 
 func main() {
@@ -81,5 +86,5 @@ func main() {
 	midwear.SetSalt("123456")
 
 	Route(r)
-	_ = r.Run(":8081")
+	_ = r.RunTLS(":8081", "example.com+3.pem", "example.com+3-key.pem")
 }
