@@ -68,7 +68,7 @@ func (mm *MessageModel) FindNewMessage(userId int64) ([]*Message, error) {
 		messages []*Message
 	)
 
-	if err := mm.x.Where(" user_id = ? and is_read = 0 ", userId).Find(&messages); err != nil {
+	if err := mm.x.Where("( user_id = ? or self_id = ? ) and is_read = 0 ", userId, userId).Find(&messages); err != nil {
 		return nil, err
 	}
 

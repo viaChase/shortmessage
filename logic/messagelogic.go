@@ -78,7 +78,7 @@ func (sml *ShortMessageLogic) SendMessage(req *SendMessageRequest, userId int64)
 		UserId:     targetUser.ID,
 		Content:    req.Content,
 		SelfId:     userId,
-		IsRead:     1,
+		IsRead:     0,
 		CreateTime: time.Now(),
 	})
 
